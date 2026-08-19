@@ -1,0 +1,127 @@
+{
+  "type": "FeatureCollection",
+  "name": "placeholder_velachery_roads",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[80.2100, 12.9800], [80.2110, 12.9810]]},
+      "properties": {
+        "segment_id": 1,
+        "from_node_id": 1,
+        "to_node_id": 2,
+        "name": "West Velachery Start Link (Placeholder)",
+        "road_type": "residential",
+        "length_m": 155,
+        "is_underpass": false,
+        "low_lying_prior": 0.15,
+        "proximity_to_water": 0.2,
+        "drainage_proxy": 0.2,
+        "historical_flood_count": 0,
+        "ml_static_propensity": 0.18,
+        "blocked": false,
+        "flood_status": "safe"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[80.2110, 12.9810], [80.2130, 12.9810]]},
+      "properties": {
+        "segment_id": 2,
+        "from_node_id": 2,
+        "to_node_id": 3,
+        "name": "Northern Relief Road (Placeholder)",
+        "road_type": "secondary",
+        "length_m": 220,
+        "is_underpass": false,
+        "low_lying_prior": 0.2,
+        "proximity_to_water": 0.25,
+        "drainage_proxy": 0.25,
+        "historical_flood_count": 0,
+        "ml_static_propensity": 0.22,
+        "blocked": false,
+        "flood_status": "safe"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[80.2130, 12.9810], [80.2150, 12.9820]]},
+      "properties": {
+        "segment_id": 3,
+        "from_node_id": 3,
+        "to_node_id": 6,
+        "name": "Hospital Approach Road (Placeholder)",
+        "road_type": "residential",
+        "length_m": 250,
+        "is_underpass": false,
+        "low_lying_prior": 0.18,
+        "proximity_to_water": 0.2,
+        "drainage_proxy": 0.2,
+        "historical_flood_count": 0,
+        "ml_static_propensity": 0.2,
+        "blocked": false,
+        "flood_status": "safe"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[80.2100, 12.9800], [80.2130, 12.9780]]},
+      "properties": {
+        "segment_id": 4,
+        "from_node_id": 1,
+        "to_node_id": 5,
+        "name": "Low-Lying Shortcut (Placeholder)",
+        "road_type": "residential",
+        "length_m": 410,
+        "is_underpass": true,
+        "low_lying_prior": 0.85,
+        "proximity_to_water": 0.8,
+        "drainage_proxy": 0.85,
+        "historical_flood_count": 5,
+        "ml_static_propensity": 0.88,
+        "blocked": false,
+        "flood_status": "likely_flooded"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[80.2130, 12.9780], [80.2150, 12.9820]]},
+      "properties": {
+        "segment_id": 5,
+        "from_node_id": 5,
+        "to_node_id": 6,
+        "name": "AGS Colony Flood-Prone Link (Placeholder)",
+        "road_type": "residential",
+        "length_m": 500,
+        "is_underpass": false,
+        "low_lying_prior": 0.75,
+        "proximity_to_water": 0.7,
+        "drainage_proxy": 0.72,
+        "historical_flood_count": 4,
+        "ml_static_propensity": 0.8,
+        "blocked": false,
+        "flood_status": "likely_flooded"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[80.2110, 12.9810], [80.2110, 12.9810]]},
+      "properties": {
+        "segment_id": 6,
+        "from_node_id": 2,
+        "to_node_id": 4,
+        "name": "Shelter Access Connector (Placeholder)",
+        "road_type": "service",
+        "length_m": 1,
+        "is_underpass": false,
+        "low_lying_prior": 0.2,
+        "proximity_to_water": 0.2,
+        "drainage_proxy": 0.2,
+        "historical_flood_count": 0,
+        "ml_static_propensity": 0.2,
+        "blocked": false,
+        "flood_status": "safe"
+      }
+    }
+  ]
+}
+

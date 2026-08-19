@@ -1,0 +1,19 @@
+[
+  {
+    "id": 1,
+    "name": "Normal",
+    "description": "Placeholder baseline light rainfall scenario",
+    "rainfall_mm_24h": 10,
+    "rainfall_mm_1h": 0,
+    "is_active": false
+  },
+  {
+    "id": 3,
+    "name": "Michaung Replay",
+    "description": "Placeholder heavy rainfall demo scenario",
+    "rainfall_mm_24h": 160,
+    "rainfall_mm_1h": 35,
+    "is_active": true
+  }
+]
+

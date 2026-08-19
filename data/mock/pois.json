@@ -1,0 +1,21 @@
+[
+  {
+    "id": 1,
+    "name": "Velachery Hospital (Placeholder)",
+    "category": "hospital",
+    "lat": 12.982,
+    "lon": 80.215,
+    "nearest_node_id": 6,
+    "status": "open"
+  },
+  {
+    "id": 2,
+    "name": "Velachery Shelter (Placeholder)",
+    "category": "shelter",
+    "lat": 12.981,
+    "lon": 80.211,
+    "nearest_node_id": 4,
+    "status": "open"
+  }
+]
+

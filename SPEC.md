@@ -1,5 +1,6 @@
 # SPEC.md
 
+
 Project: SafeRoute Velachery — AI Emergency Evacuation & Safe Route Planning  
 Version: 1.0.0  
 Status: Implementation-ready hackathon MVP  
