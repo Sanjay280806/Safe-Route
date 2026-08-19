@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "external_id": "POI-HOSP-001",
+    "name": "Velachery Hospital (Placeholder)",
+    "category": "hospital",
+    "lat": 12.982,
+    "lon": 80.215,
+    "address": "Hospital Road",
+    "phone": "",
+    "status": "open",
+    "nearest_node_id": 104,
+    "source": "placeholder",
+    "notes": "Replace with real hospital data"
+  },
+  {
+    "id": 2,
+    "external_id": "POI-SHEL-001",
+    "name": "Community Shelter (Placeholder)",
+    "category": "shelter",
+    "lat": 12.981,
+    "lon": 80.211,
+    "address": "Near Main Road",
+    "phone": "",
+    "status": "open",
+    "nearest_node_id": 101,
+    "source": "placeholder",
+    "notes": "Replace with GCC relief centre data"
+  },
+  {
+    "id": 3,
+    "external_id": "POI-POL-001",
+    "name": "Police Station (Placeholder)",
+    "category": "police_station",
+    "lat": 12.979,
+    "lon": 80.214,
+    "address": "Link Road",
+    "phone": "",
+    "status": "open",
+    "nearest_node_id": 103,
+    "source": "placeholder",
+    "notes": "Replace with real police station data"
+  },
+  {
+    "id": 4,
+    "external_id": "POI-FUEL-001",
+    "name": "Petrol Bunk (Placeholder)",
+    "category": "petrol_bunk",
+    "lat": 12.9795,
+    "lon": 80.212,
+    "address": "Inner Road",
+    "phone": "",
+    "status": "open",
+    "nearest_node_id": 102,
+    "source": "placeholder",
+    "notes": "Replace with real fuel station data"
+  }
+]
