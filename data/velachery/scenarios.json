@@ -1,6 +1,5 @@
 [
   {
-    "id": 1,
     "name": "Normal",
     "description": "Placeholder baseline light rainfall scenario",
     "rainfall_mm_24h": 10,
@@ -9,7 +8,6 @@
     "is_active": false
   },
   {
-    "id": 2,
     "name": "Heavy Monsoon",
     "description": "Placeholder heavy rainfall for several hours",
     "rainfall_mm_24h": 80,
@@ -18,7 +16,6 @@
     "is_active": false
   },
   {
-    "id": 3,
     "name": "Michaung Replay",
     "description": "Placeholder approximately 150 mm rainfall in 24 hours",
     "rainfall_mm_24h": 150,
@@ -27,7 +24,6 @@
     "is_active": true
   },
   {
-    "id": 4,
     "name": "Extreme Event",
     "description": "Placeholder 250 mm rainfall in 24 hours",
     "rainfall_mm_24h": 250,

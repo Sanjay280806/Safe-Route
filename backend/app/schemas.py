@@ -70,3 +70,107 @@ class RouteResponse(BaseModel):
     routes: list[RouteObject]
     warnings: list[RouteWarning]
     explanation: RouteExplanation
+
+
+class ErrorBody(BaseModel):
+    code: str
+    message: str
+    details: dict[str, Any] = Field(default_factory=dict)
+
+
+class ErrorResponse(BaseModel):
+    error: ErrorBody
+
+
+class HealthResponse(BaseModel):
+    status: str
+    model_loaded: bool
+    active_scenario_id: int | None
+    road_count: int
+    poi_count: int
+
+
+class AreaMetaResponse(BaseModel):
+    name: str
+    bbox: list[float]
+    default_center: list[float]
+    default_zoom: int
+    disclaimer: str
+
+
+class LoginRequest(BaseModel):
+    username: str = Field(min_length=3, max_length=64)
+    password: str = Field(min_length=6, max_length=128)
+
+
+class AuthUser(BaseModel):
+    id: int
+    username: str
+    role: str
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "Bearer"
+    expires_in: int
+    user: AuthUser
+
+
+class ScenarioResponse(BaseModel):
+    id: int
+    name: str
+    description: str | None
+    rainfall_mm_24h: float
+    rainfall_mm_1h: float
+    source: str
+    is_active: bool
+
+
+class PoiResponse(BaseModel):
+    id: int
+    external_id: str | None
+    name: str
+    category: str
+    lat: float
+    lon: float
+    address: str | None
+    phone: str | None
+    status: str
+    nearest_node_id: int | None
+    source: str
+    notes: str | None
+
+
+class BlockedReportRequest(BaseModel):
+    segment_id: int
+    source: str = "field_official"
+    note: str | None = Field(default=None, max_length=500)
+    flood_status: str = "confirmed_flooded"
+
+
+class RoadStatus(BaseModel):
+    blocked: bool
+    flood_status: str
+    current_risk_level: str
+
+
+class BlockedReportResponse(BaseModel):
+    report_id: int
+    segment_id: int
+    verification_status: str
+    credibility_score: float
+    road_status: RoadStatus
+
+
+class VerifyReportRequest(BaseModel):
+    decision: Literal["confirm", "reject"]
+
+
+class ActiveReportResponse(BaseModel):
+    id: int
+    segment_id: int
+    road_name: str | None
+    source: str
+    verification_status: str
+    note: str | None
+    created_at: str
