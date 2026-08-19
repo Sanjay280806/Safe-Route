@@ -1,0 +1,7 @@
+{
+  "name": "West Velachery, Chennai",
+  "bbox": [12.965, 80.195, 12.995, 80.235],
+  "default_center": [12.98, 80.2125],
+  "default_zoom": 15,
+  "disclaimer": "Demo decision-support tool. Not an official emergency service."
+}

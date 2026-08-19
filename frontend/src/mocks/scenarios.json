@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "Normal",
+    "description": "Baseline light rainfall",
+    "rainfall_mm_24h": 10,
+    "rainfall_mm_1h": 0,
+    "source": "manual",
+    "is_active": false
+  },
+  {
+    "id": 2,
+    "name": "Heavy Monsoon",
+    "description": "Heavy rainfall for several hours",
+    "rainfall_mm_24h": 80,
+    "rainfall_mm_1h": 15,
+    "source": "manual",
+    "is_active": false
+  },
+  {
+    "id": 3,
+    "name": "Michaung Replay",
+    "description": "Approximately 150 mm rainfall in 24 hours",
+    "rainfall_mm_24h": 150,
+    "rainfall_mm_1h": 30,
+    "source": "Michaung 2023 benchmark",
+    "is_active": true
+  },
+  {
+    "id": 4,
+    "name": "Extreme Event",
+    "description": "250 mm rainfall in 24 hours",
+    "rainfall_mm_24h": 250,
+    "rainfall_mm_1h": 50,
+    "source": "manual",
+    "is_active": false
+  }
+]

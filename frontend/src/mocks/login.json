@@ -1,0 +1,10 @@
+{
+  "access_token": "mock-token",
+  "token_type": "Bearer",
+  "expires_in": 43200,
+  "user": {
+    "id": 2,
+    "username": "reporter",
+    "role": "reporter"
+  }
+}

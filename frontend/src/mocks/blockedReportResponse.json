@@ -1,0 +1,11 @@
+{
+  "report_id": 1,
+  "segment_id": 2,
+  "verification_status": "confirmed",
+  "credibility_score": 0.9,
+  "road_status": {
+    "blocked": true,
+    "flood_status": "confirmed_flooded",
+    "current_risk_level": "critical"
+  }
+}

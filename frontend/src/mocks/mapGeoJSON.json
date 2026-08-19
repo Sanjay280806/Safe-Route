@@ -1,0 +1,139 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[80.21, 12.98], [80.215, 12.98]]
+      },
+      "properties": {
+        "layer_type": "road",
+        "segment_id": 1,
+        "name": "Velachery Main Road",
+        "road_type": "secondary",
+        "current_risk_score": 0.12,
+        "current_risk_level": "low",
+        "predicted_time_to_high_risk_min": 120,
+        "blocked": false,
+        "flood_status": "safe"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[80.21, 12.978], [80.213, 12.978]]
+      },
+      "properties": {
+        "layer_type": "road",
+        "segment_id": 2,
+        "name": "AGS Colony Road",
+        "road_type": "residential",
+        "current_risk_score": 0.82,
+        "current_risk_level": "critical",
+        "predicted_time_to_high_risk_min": 0,
+        "blocked": true,
+        "flood_status": "confirmed_flooded"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[80.213, 12.978], [80.213, 12.98]]
+      },
+      "properties": {
+        "layer_type": "road",
+        "segment_id": 3,
+        "name": "Baby Nagar Link",
+        "road_type": "residential",
+        "current_risk_score": 0.52,
+        "current_risk_level": "high",
+        "predicted_time_to_high_risk_min": 25,
+        "blocked": false,
+        "flood_status": "likely_flooded"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[80.215, 12.98], [80.215, 12.982]]
+      },
+      "properties": {
+        "layer_type": "road",
+        "segment_id": 4,
+        "name": "Hospital Road",
+        "road_type": "residential",
+        "current_risk_score": 0.1,
+        "current_risk_level": "low",
+        "predicted_time_to_high_risk_min": 160,
+        "blocked": false,
+        "flood_status": "safe"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[80.21, 12.98], [80.213, 12.978]]
+      },
+      "properties": {
+        "layer_type": "road",
+        "segment_id": 5,
+        "name": "Low-Lying Shortcut",
+        "road_type": "residential",
+        "current_risk_score": 0.68,
+        "current_risk_level": "high",
+        "predicted_time_to_high_risk_min": 18,
+        "blocked": false,
+        "flood_status": "likely_flooded"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [80.215, 12.982] },
+      "properties": {
+        "layer_type": "poi",
+        "poi_id": 1,
+        "name": "Velachery Hospital (Placeholder)",
+        "category": "hospital",
+        "status": "open"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [80.211, 12.981] },
+      "properties": {
+        "layer_type": "poi",
+        "poi_id": 2,
+        "name": "Community Shelter (Placeholder)",
+        "category": "shelter",
+        "status": "open"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [80.214, 12.979] },
+      "properties": {
+        "layer_type": "poi",
+        "poi_id": 3,
+        "name": "Police Station (Placeholder)",
+        "category": "police_station",
+        "status": "open"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [80.212, 12.9795] },
+      "properties": {
+        "layer_type": "poi",
+        "poi_id": 4,
+        "name": "Petrol Bunk (Placeholder)",
+        "category": "petrol_bunk",
+        "status": "open"
+      }
+    }
+  ]
+}
