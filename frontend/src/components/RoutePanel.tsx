@@ -1,40 +1,60 @@
+import type { Bbox } from "../config/googleMaps";
 import type { Destination, LatLng, RouteMode, RouteResponse } from "../types";
+import { PlacesAutocompleteInput } from "./PlacesAutocompleteInput";
 
 interface RoutePanelProps {
   origin: LatLng | null;
+  originLabel: string;
   destination: Destination | null;
+  destinationLabel: string;
   routeMode: RouteMode;
   routeResponse: RouteResponse | null;
   loading: boolean;
   mapMode: "pan" | "set_origin" | "set_destination" | "report_road";
+  mapBounds: Bbox;
+  onOriginLabelChange: (value: string) => void;
+  onDestinationLabelChange: (value: string) => void;
+  onOriginSelect: (point: LatLng, label: string) => void;
+  onDestinationSelect: (destination: Destination, label: string) => void;
   onRouteModeChange: (mode: RouteMode) => void;
   onMapModeChange: (mode: "set_origin" | "set_destination") => void;
   onRequestRoute: () => void;
   onClear: () => void;
+  onPlacesError: (message: string) => void;
 }
 
 function pointLabel(point: LatLng | null, fallback: string): string {
   return point ? `${point.lat.toFixed(4)}, ${point.lon.toFixed(4)}` : fallback;
 }
 
-function destinationLabel(destination: Destination | null): string {
+function destinationFallbackLabel(destination: Destination | null): string {
   if (!destination) return "Choose a place or map point";
   return destination.type === "poi" ? destination.poi.name : `${destination.location.lat.toFixed(4)}, ${destination.location.lon.toFixed(4)}`;
 }
 
 export function RoutePanel({
   origin,
+  originLabel,
   destination,
+  destinationLabel,
   routeMode,
   routeResponse,
   loading,
   mapMode,
+  mapBounds,
+  onOriginLabelChange,
+  onDestinationLabelChange,
+  onOriginSelect,
+  onDestinationSelect,
   onRouteModeChange,
   onMapModeChange,
   onRequestRoute,
   onClear,
+  onPlacesError,
 }: RoutePanelProps) {
   const visibleRoutes = routeResponse?.routes.filter((route) => routeMode === "compare" || route.route_type === routeMode) ?? [];
+  const originDisplay = originLabel || pointLabel(origin, "Set an origin");
+  const destinationDisplay = destinationLabel || destinationFallbackLabel(destination);
 
   return (
     <section className="panel route-panel">
@@ -47,15 +67,39 @@ export function RoutePanel({
       </div>
 
       <div className="route-points">
-        <div className="route-point">
+        <div className="route-point route-point-with-search">
           <span className="route-dot origin" />
-          <div><small>From</small><strong>{pointLabel(origin, "Set an origin")}</strong></div>
+          <div>
+            <small>From</small>
+            <PlacesAutocompleteInput
+              id="route-origin-search"
+              placeholder="Search origin in Velachery…"
+              value={originLabel}
+              bounds={mapBounds}
+              onChange={onOriginLabelChange}
+              onPlaceSelect={({ location, label }) => onOriginSelect(location, label)}
+              onError={onPlacesError}
+            />
+            <strong className="route-coordinate-hint">{originDisplay}</strong>
+          </div>
           <button type="button" onClick={() => onMapModeChange("set_origin")}>Set on map</button>
         </div>
         <div className="route-connector" />
-        <div className="route-point">
+        <div className="route-point route-point-with-search">
           <span className="route-dot destination" />
-          <div><small>To</small><strong>{destinationLabel(destination)}</strong></div>
+          <div>
+            <small>To</small>
+            <PlacesAutocompleteInput
+              id="route-destination-search"
+              placeholder="Search destination in Velachery…"
+              value={destinationLabel}
+              bounds={mapBounds}
+              onChange={onDestinationLabelChange}
+              onPlaceSelect={({ location, label }) => onDestinationSelect({ type: "custom", location }, label)}
+              onError={onPlacesError}
+            />
+            <strong className="route-coordinate-hint">{destinationDisplay}</strong>
+          </div>
           <button type="button" onClick={() => onMapModeChange("set_destination")}>Set on map</button>
         </div>
       </div>
