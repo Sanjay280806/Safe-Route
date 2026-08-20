@@ -1,0 +1,7 @@
+{
+  "trained_at": "2026-08-20T05:28:34.596309+00:00",
+  "segment_count": 5,
+  "model_type": "not_trained",
+  "reason": "fewer_than_30_segments",
+  "top_propensity_segments": []
+}

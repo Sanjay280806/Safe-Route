@@ -1,6 +1,6 @@
 import type { RouteResponse } from "../types";
 
-export function ExplanationPanel({ routeResponse }: { routeResponse: RouteResponse | null }) {
+export function ExplanationPanel({ routeResponse, modelLoaded = false }: { routeResponse: RouteResponse | null; modelLoaded?: boolean }) {
   if (!routeResponse) {
     return (
       <section className="panel explanation-panel empty-explanation">
@@ -17,6 +17,11 @@ export function ExplanationPanel({ routeResponse }: { routeResponse: RouteRespon
       <p className="eyebrow">Why the safe route?</p>
       <h2>Flood exposure reduced</h2>
       <p className="explanation-copy">{explanation.summary}</p>
+      <p className="explanation-ai-source">
+        {modelLoaded
+          ? "Scored with IsolationForest flood propensity plus rainfall and blocked-road penalties."
+          : "Scored with stored segment flood propensity plus rainfall and blocked-road penalties."}
+      </p>
       <div className="explanation-metrics">
         <span><strong>+{explanation.safe_route_adds_min.toFixed(1)} min</strong><small>travel time</small></span>
         <span><strong>{explanation.high_risk_segments_avoided}</strong><small>high-risk roads avoided</small></span>

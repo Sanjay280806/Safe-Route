@@ -90,6 +90,28 @@ class HealthResponse(BaseModel):
     poi_count: int
 
 
+class RecomputeRiskResponse(BaseModel):
+    scenario_id: int
+    segments_updated: int
+    model_loaded: bool = False
+
+
+class ValidationSegment(BaseModel):
+    segment_id: int
+    name: str
+    risk_score: float
+    risk_level: str
+
+
+class ValidationSummaryResponse(BaseModel):
+    model_loaded: bool
+    model_type: str
+    segment_count: int
+    risk_distribution: dict[str, int]
+    top_high_risk_segments: list[ValidationSegment]
+    documented_flood_pockets: list[str]
+
+
 class AreaMetaResponse(BaseModel):
     name: str
     bbox: list[float]

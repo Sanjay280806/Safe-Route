@@ -61,9 +61,17 @@ def train() -> dict:
         "feature_names": FEATURE_NAMES,
         "trained_at": datetime.now(timezone.utc).isoformat(),
         "segment_count": len(segments),
+        "score_min": float(min_score),
+        "score_max": float(max_score),
     }
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     dump(artifact, MODEL_PATH)
+    try:
+        from app.ai.predict import clear_model_cache
+
+        clear_model_cache()
+    except Exception:
+        pass
 
     top = sorted(
         [
@@ -84,11 +92,11 @@ def train() -> dict:
         "top_propensity_segments": top,
     }
     MODEL_META_PATH.write_text(json.dumps(meta, indent=2), encoding="utf-8")
-    _update_segment_propensities(propensities)
+    _update_segment_propensities(segments, propensities)
     return meta
 
 
-def _update_segment_propensities(propensities: list[float]) -> int:
+def _update_segment_propensities(segments, propensities: list[float]) -> int:
     if inspect is None or text is None or SessionLocal is None:
         return 0
     db = SessionLocal()
@@ -100,19 +108,15 @@ def _update_segment_propensities(propensities: list[float]) -> int:
         if "ml_static_propensity" not in columns:
             return 0
 
-        segment_ids = [
-            row["id"]
-            for row in db.execute(text("SELECT id FROM road_segments ORDER BY id")).mappings().all()
-        ]
         updated = 0
-        for segment_id, propensity in zip(segment_ids, propensities):
+        for segment, propensity in zip(segments, propensities):
             db.execute(
                 text(
                     "UPDATE road_segments "
                     "SET ml_static_propensity = :propensity "
                     "WHERE id = :segment_id"
                 ),
-                {"propensity": float(propensity), "segment_id": segment_id},
+                {"propensity": float(propensity), "segment_id": int(segment.id)},
             )
             updated += 1
         db.commit()

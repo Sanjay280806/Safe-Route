@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { createRoute, getActiveReports, getArea, getMapGeoJson, getPois, getScenarios, reroute, submitBlockedReport, useMocks, verifyReport } from "../api/client";
+import { createRoute, getActiveReports, getArea, getHealth, getMapGeoJson, getPois, getScenarios, getValidationSummary, recomputeRisk, reroute, submitBlockedReport, useMocks, verifyReport } from "../api/client";
+import { AiRiskPanel } from "../components/AiRiskPanel";
 import { CategoryChips } from "../components/CategoryChips";
 import { ExplanationPanel } from "../components/ExplanationPanel";
 import { GoogleMapsProvider } from "../components/GoogleMapsProvider";
@@ -12,7 +13,7 @@ import { ReportStatusPanel } from "../components/ReportStatusPanel";
 import { RoutePanel } from "../components/RoutePanel";
 import { SearchBar } from "../components/SearchBar";
 import { WarningsPanel } from "../components/WarningsPanel";
-import type { AreaMeta, BlockedReport, Destination, LatLng, MapGeoJson, MapMode, Poi, PoiCategory, RoadFeature, Route, RouteMode, RouteResponse, Scenario, User } from "../types";
+import type { AreaMeta, BlockedReport, Destination, Health, LatLng, MapGeoJson, MapMode, Poi, PoiCategory, RoadFeature, Route, RouteMode, RouteResponse, Scenario, User, ValidationSummary } from "../types";
 import { expandBbox, type Bbox } from "../config/googleMaps";
 
 const fallbackArea: AreaMeta = {
@@ -56,6 +57,9 @@ export function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
   const [reportSubmitting, setReportSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [notification, setNotification] = useState("");
+  const [health, setHealth] = useState<Health | null>(null);
+  const [validation, setValidation] = useState<ValidationSummary | null>(null);
+  const [recomputing, setRecomputing] = useState(false);
 
   const loadMap = useCallback(async (nextScenarioId: number) => {
     const data = await getMapGeoJson(nextScenarioId);
@@ -71,11 +75,21 @@ export function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
         const [nextArea, nextScenarios, nextPois, nextReports] = await Promise.all([getArea(), getScenarios(), getPois(), getActiveReports()]);
         const activeScenario = nextScenarios.find((scenario) => scenario.is_active)?.id ?? nextScenarios[0]?.id ?? 3;
         const nextMap = await getMapGeoJson(activeScenario);
+        let nextHealth: Health | null = null;
+        let nextValidation: ValidationSummary | null = null;
+        try {
+          [nextHealth, nextValidation] = await Promise.all([getHealth(), getValidationSummary()]);
+        } catch {
+          nextHealth = null;
+          nextValidation = null;
+        }
         if (!active) return;
         setArea(nextArea);
         setScenarios(nextScenarios);
         setPois(nextPois);
         setReports(nextReports);
+        setHealth(nextHealth);
+        setValidation(nextValidation);
         setScenarioId(activeScenario);
         setMapData(nextMap);
         setOrigin({ lat: nextArea.default_center[0], lon: nextArea.default_center[1] - 0.0025 });
@@ -164,6 +178,8 @@ export function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
     setNotification("Scenario changed. Road risk layer updated.");
     try {
       await loadMap(nextScenarioId);
+      const nextValidation = await getValidationSummary();
+      setValidation(nextValidation);
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "Unable to update road risk layer.");
     }
@@ -268,6 +284,24 @@ export function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
     }
   }, [currentLocation, destination, routeMode, routeResponse]);
 
+  const handleRecomputeRisk = async () => {
+    if (!token) return;
+    setRecomputing(true);
+    setError("");
+    try {
+      const result = await recomputeRisk(token);
+      await loadMap(scenarioId);
+      const [nextHealth, nextValidation] = await Promise.all([getHealth(), getValidationSummary()]);
+      setHealth(nextHealth);
+      setValidation(nextValidation);
+      setNotification(`AI risk recomputed for ${result.segments_updated} road segments.`);
+    } catch (caughtError) {
+      setError(caughtError instanceof Error ? caughtError.message : "Unable to recompute flood risk.");
+    } finally {
+      setRecomputing(false);
+    }
+  };
+
   const mapCenter: [number, number] = area.default_center;
   const mapBounds: Bbox = expandBbox(area.bbox as Bbox);
   const activeScenario = scenarios.find((scenario) => scenario.id === scenarioId);
@@ -319,13 +353,14 @@ export function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
 
         <aside className="right-sidebar">
           <section className="scenario-card"><p className="eyebrow">Current model input</p><h2>{activeScenario?.name ?? "Loading scenario…"}</h2><p>{activeScenario?.description ?? "Local rainfall scenario"}</p><div><span><strong>{activeScenario?.rainfall_mm_24h ?? "–"}</strong> mm / 24h</span><span><strong>{activeScenario?.rainfall_mm_1h ?? "–"}</strong> mm / 1h</span></div></section>
+          <AiRiskPanel health={health} summary={validation} user={user} recomputing={recomputing} onRecompute={() => void handleRecomputeRisk()} />
           <WarningsPanel warnings={routeResponse?.warnings ?? []} />
-          <ExplanationPanel routeResponse={routeResponse} />
+          <ExplanationPanel routeResponse={routeResponse} modelLoaded={validation?.model_loaded ?? health?.model_loaded ?? false} />
           <NavigationSimulator route={navigationRoute} reports={reports} roads={roads} onLocationChange={setCurrentLocation} onReroute={handleReroute} />
           <ReportStatusPanel reports={reports} user={user} onVerify={(report, decision) => void handleVerify(report, decision)} />
         </aside>
       </div>
-      <footer className="app-footer"><span><i className="status-dot" /> {useMocks ? "Mock API mode" : "Connected to API"}</span><span>{area.disclaimer ?? "Demo decision-support tool. Not an official emergency service."}</span></footer>
+      <footer className="app-footer"><span><i className="status-dot" /> {useMocks ? "Mock API mode" : "Connected to API"}</span><span>AI: {validation?.model_loaded || health?.model_loaded ? "IsolationForest loaded" : "heuristic flood propensity"}</span><span>{area.disclaimer ?? "Demo decision-support tool. Not an official emergency service."}</span></footer>
 
       <ReportModal road={reportOpen ? selectedRoad : null} submitting={reportSubmitting} onClose={() => { setReportOpen(false); setMapMode("pan"); }} onSubmit={(payload) => void submitReport(payload)} />
     </main>

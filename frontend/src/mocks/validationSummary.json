@@ -1,0 +1,37 @@
+{
+  "model_loaded": false,
+  "model_type": "heuristic_fallback",
+  "segment_count": 5,
+  "risk_distribution": {
+    "low": 3,
+    "moderate": 0,
+    "high": 1,
+    "critical": 1
+  },
+  "top_high_risk_segments": [
+    {
+      "segment_id": 4,
+      "name": "Low-Lying Shortcut (Placeholder)",
+      "risk_score": 0.82,
+      "risk_level": "critical"
+    },
+    {
+      "segment_id": 5,
+      "name": "AGS Colony Flood-Prone Link (Placeholder)",
+      "risk_score": 0.66,
+      "risk_level": "high"
+    }
+  ],
+  "documented_flood_pockets": [
+    "AGS Colony",
+    "Baby Nagar",
+    "Dhandeeswaran Nagar",
+    "Venkateshwara Nagar",
+    "EB Colony",
+    "Ayothi Colony",
+    "Vijayanagar",
+    "Ramnagar",
+    "Murugan Nagar",
+    "Kuberan Nagar"
+  ]
+}
