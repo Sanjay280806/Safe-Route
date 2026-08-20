@@ -32,3 +32,33 @@ def normalize_linestring_coordinates(raw: object) -> list[list[float]]:
             coords.append([float(item[0]), float(item[1])])
     return coords
 
+
+def lon_lat_key(lon: float, lat: float) -> str:
+    return f"{lon:.7f}_{lat:.7f}"
+
+
+def line_length_m(coordinates: list[list[float]]) -> float:
+    total = 0.0
+    for index in range(1, len(coordinates)):
+        lon1, lat1 = coordinates[index - 1]
+        lon2, lat2 = coordinates[index]
+        total += haversine_m(lat1, lon1, lat2, lon2)
+    return total
+
+
+def segment_midpoint(coordinates: list[list[float]]) -> tuple[float, float]:
+    if not coordinates:
+        return (0.0, 0.0)
+    mid = coordinates[len(coordinates) // 2]
+    return (float(mid[1]), float(mid[0]))
+
+
+def risk_level_for_score(score: float) -> str:
+    if score < 0.25:
+        return "low"
+    if score < 0.50:
+        return "moderate"
+    if score < 0.75:
+        return "high"
+    return "critical"
+

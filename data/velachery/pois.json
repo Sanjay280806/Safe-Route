@@ -1,6 +1,5 @@
 [
   {
-    "id": 1,
     "external_id": "POI-HOSP-001",
     "name": "Velachery Hospital (Placeholder)",
     "category": "hospital",
@@ -9,12 +8,10 @@
     "address": "Hospital Road",
     "phone": "",
     "status": "open",
-    "nearest_node_id": 6,
     "source": "placeholder",
     "notes": "Replace with real hospital data"
   },
   {
-    "id": 2,
     "external_id": "POI-SHEL-001",
     "name": "Community Shelter (Placeholder)",
     "category": "shelter",
@@ -23,12 +20,10 @@
     "address": "Near Main Road",
     "phone": "",
     "status": "open",
-    "nearest_node_id": 4,
     "source": "placeholder",
     "notes": "Replace with GCC relief centre data"
   },
   {
-    "id": 3,
     "external_id": "POI-POL-001",
     "name": "Police Station (Placeholder)",
     "category": "police_station",
@@ -37,12 +32,10 @@
     "address": "Link Road",
     "phone": "",
     "status": "open",
-    "nearest_node_id": 5,
     "source": "placeholder",
     "notes": "Replace with real police station data"
   },
   {
-    "id": 4,
     "external_id": "POI-FUEL-001",
     "name": "Petrol Bunk (Placeholder)",
     "category": "petrol_bunk",
@@ -51,7 +44,6 @@
     "address": "Inner Road",
     "phone": "",
     "status": "open",
-    "nearest_node_id": 1,
     "source": "placeholder",
     "notes": "Replace with real fuel station data"
   }

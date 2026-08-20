@@ -1,12 +1,7 @@
-from fastapi.testclient import TestClient
-
 from app.main import app
 
 
-client = TestClient(app)
-
-
-def test_create_route_uses_frozen_response_shape():
+def test_create_route_uses_frozen_response_shape(client):
     response = client.post(
         "/api/routes",
         json={
@@ -36,7 +31,7 @@ def test_create_route_uses_frozen_response_shape():
     }
 
 
-def test_reroute_accepts_current_location():
+def test_reroute_accepts_current_location(client):
     response = client.post(
         "/api/routes/re-route",
         json={
