@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+frontend/dist/
+node_modules/
+*.db
+*.sqlite
+*.sqlite3

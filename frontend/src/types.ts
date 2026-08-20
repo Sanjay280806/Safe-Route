@@ -120,7 +120,7 @@ export interface Route {
 }
 
 export interface RouteWarning {
-  warning_type: "predicted_flood_before_arrival" | "blocked_ahead" | "high_risk_area";
+  warning_type: "predicted_flood_before_arrival" | "blocked_segment" | "blocked_ahead" | "high_risk_area";
   segment_id?: number;
   road_name: string;
   eta_to_segment_min?: number;
@@ -182,4 +182,6 @@ export interface RerouteRequest {
   destination: { poi_id: number } | LatLng;
   reason: "blocked_ahead" | "predicted_risk";
   route_mode: "safe" | "short";
+  scenario_id: number;
+  include_alternatives?: boolean;
 }
