@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { createRoute, getActiveReports, getArea, getMapGeoJson, getPois, getScenarios, reroute, submitBlockedReport, useMocks, verifyReport } from "../api/client";
 import { CategoryChips } from "../components/CategoryChips";
 import { ExplanationPanel } from "../components/ExplanationPanel";
+import { GoogleMapsProvider } from "../components/GoogleMapsProvider";
 import { MapPanel } from "../components/MapPanel";
 import { NavigationSimulator } from "../components/NavigationSimulator";
 import { PlaceResultsPanel } from "../components/PlaceResultsPanel";
@@ -12,6 +13,7 @@ import { RoutePanel } from "../components/RoutePanel";
 import { SearchBar } from "../components/SearchBar";
 import { WarningsPanel } from "../components/WarningsPanel";
 import type { AreaMeta, BlockedReport, Destination, LatLng, MapGeoJson, MapMode, Poi, PoiCategory, RoadFeature, Route, RouteMode, RouteResponse, Scenario, User } from "../types";
+import { expandBbox, type Bbox } from "../config/googleMaps";
 
 const fallbackArea: AreaMeta = {
   name: "West Velachery, Chennai",
@@ -38,7 +40,9 @@ export function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
   const [category, setCategory] = useState<PoiCategory | null>(null);
   const [selectedPoi, setSelectedPoi] = useState<Poi | null>(null);
   const [origin, setOrigin] = useState<LatLng | null>({ lat: 12.98, lon: 80.21 });
+  const [originLabel, setOriginLabel] = useState("");
   const [destination, setDestination] = useState<Destination | null>(null);
+  const [destinationLabel, setDestinationLabel] = useState("");
   const [mapMode, setMapMode] = useState<MapMode>("pan");
   const [routeMode, setRouteMode] = useState<RouteMode>("compare");
   const [routeResponse, setRouteResponse] = useState<RouteResponse | null>(null);
@@ -107,14 +111,36 @@ export function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
   const selectPoi = useCallback((poi: Poi) => {
     setSelectedPoi(poi);
     setDestination({ type: "poi", poi });
+    setDestinationLabel(poi.name);
     setFocusPoint({ lat: poi.lat, lon: poi.lon });
     setMapMode("pan");
     setNotification(`${poi.name} selected as destination.`);
   }, []);
 
+  const handleOriginSelect = useCallback((point: LatLng, label: string) => {
+    setOrigin(point);
+    setOriginLabel(label);
+    setFocusPoint(point);
+    setMapMode("pan");
+    setNotification("Origin updated.");
+  }, []);
+
+  const handleDestinationSelect = useCallback((nextDestination: Destination, label: string) => {
+    setSelectedPoi(nextDestination.type === "poi" ? nextDestination.poi : null);
+    setDestination(nextDestination);
+    setDestinationLabel(label);
+    const focus = nextDestination.type === "poi"
+      ? { lat: nextDestination.poi.lat, lon: nextDestination.poi.lon }
+      : nextDestination.location;
+    setFocusPoint(focus);
+    setMapMode("pan");
+    setNotification("Destination updated.");
+  }, []);
+
   const handleMapClick = useCallback((point: LatLng) => {
     if (mapMode === "set_origin") {
       setOrigin(point);
+      setOriginLabel(`${point.lat.toFixed(4)}, ${point.lon.toFixed(4)}`);
       setFocusPoint(point);
       setMapMode("pan");
       setNotification("Origin updated from the map.");
@@ -123,6 +149,7 @@ export function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
     if (mapMode === "set_destination") {
       setSelectedPoi(null);
       setDestination({ type: "custom", location: point });
+      setDestinationLabel(`${point.lat.toFixed(4)}, ${point.lon.toFixed(4)}`);
       setFocusPoint(point);
       setMapMode("pan");
       setNotification("Custom destination selected.");
@@ -164,6 +191,7 @@ export function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
     setRouteResponse(null);
     setOldRoute(null);
     setDestination(null);
+    setDestinationLabel("");
     setSelectedPoi(null);
     setCurrentLocation(null);
     setMapMode("pan");
@@ -241,9 +269,11 @@ export function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
   }, [currentLocation, destination, routeMode, routeResponse]);
 
   const mapCenter: [number, number] = area.default_center;
+  const mapBounds: Bbox = expandBbox(area.bbox as Bbox);
   const activeScenario = scenarios.find((scenario) => scenario.id === scenarioId);
 
   return (
+    <GoogleMapsProvider>
     <main className="dashboard-page">
       <header className="app-header">
         <div className="header-main-row">
@@ -263,10 +293,29 @@ export function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
       <div className="dashboard-layout">
         <aside className="left-sidebar">
           <PlaceResultsPanel places={filteredPois} selectedPoi={selectedPoi} loading={loading} onSelect={selectPoi} />
-          <RoutePanel origin={origin} destination={destination} routeMode={routeMode} routeResponse={routeResponse} loading={routeLoading} mapMode={mapMode} onRouteModeChange={setRouteMode} onMapModeChange={setMapMode} onRequestRoute={() => void requestRoute()} onClear={clearRoute} />
+          <RoutePanel
+            origin={origin}
+            originLabel={originLabel}
+            destination={destination}
+            destinationLabel={destinationLabel}
+            routeMode={routeMode}
+            routeResponse={routeResponse}
+            loading={routeLoading}
+            mapMode={mapMode}
+            mapBounds={mapBounds}
+            onOriginLabelChange={setOriginLabel}
+            onDestinationLabelChange={setDestinationLabel}
+            onOriginSelect={handleOriginSelect}
+            onDestinationSelect={handleDestinationSelect}
+            onRouteModeChange={setRouteMode}
+            onMapModeChange={setMapMode}
+            onRequestRoute={() => void requestRoute()}
+            onClear={clearRoute}
+            onPlacesError={setError}
+          />
         </aside>
 
-        <MapPanel center={mapCenter} zoom={area.default_zoom} mapData={mapData} pois={filteredPois} reports={reports} routes={displayedRoutes} oldRoute={oldRoute} origin={origin} destination={destination} currentLocation={currentLocation} mapMode={mapMode} user={user} focusPoint={focusPoint} onMapClick={handleMapClick} onPoiSelect={selectPoi} onRoadSelect={selectRoad} />
+        <MapPanel center={mapCenter} zoom={area.default_zoom} bounds={mapBounds} mapData={mapData} pois={filteredPois} reports={reports} routes={displayedRoutes} oldRoute={oldRoute} origin={origin} destination={destination} currentLocation={currentLocation} mapMode={mapMode} focusPoint={focusPoint} onMapClick={handleMapClick} onPoiSelect={selectPoi} onRoadSelect={selectRoad} />
 
         <aside className="right-sidebar">
           <section className="scenario-card"><p className="eyebrow">Current model input</p><h2>{activeScenario?.name ?? "Loading scenario…"}</h2><p>{activeScenario?.description ?? "Local rainfall scenario"}</p><div><span><strong>{activeScenario?.rainfall_mm_24h ?? "–"}</strong> mm / 24h</span><span><strong>{activeScenario?.rainfall_mm_1h ?? "–"}</strong> mm / 1h</span></div></section>
@@ -280,5 +329,6 @@ export function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
 
       <ReportModal road={reportOpen ? selectedRoad : null} submitting={reportSubmitting} onClose={() => { setReportOpen(false); setMapMode("pan"); }} onSubmit={(payload) => void submitReport(payload)} />
     </main>
+    </GoogleMapsProvider>
   );
 }
