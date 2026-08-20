@@ -5,8 +5,6 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from sqlalchemy import inspect
-
 from app.config import settings
 from app.database import Base, SessionLocal, engine
 from app.routers import auth, health, map, meta, pois, reports, scenarios
@@ -23,11 +21,6 @@ import app.models  # noqa: F401
 
 
 def bootstrap_database() -> None:
-    inspector = inspect(engine)
-    if inspector.has_table("road_segments"):
-        columns = {column["name"] for column in inspector.get_columns("road_segments")}
-        if "current_risk_score" not in columns:
-            Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
@@ -71,5 +64,3 @@ app.include_router(pois.router, prefix="/api")
 app.include_router(map.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
 app.include_router(routes_router, prefix="/api")
-
-bootstrap_database()

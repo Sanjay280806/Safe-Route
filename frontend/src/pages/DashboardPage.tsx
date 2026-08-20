@@ -221,7 +221,14 @@ export function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
     try {
       setNotification(`Road ahead is blocked on ${report.road_name}. Rerouting…`);
       const destinationPayload = destination.type === "poi" ? { poi_id: destination.poi.id } : destination.location;
-      const response = await reroute({ current_location: currentLocation, destination: destinationPayload, reason: "blocked_ahead", route_mode: "safe" });
+      const response = await reroute({
+        current_location: currentLocation,
+        destination: destinationPayload,
+        reason: "blocked_ahead",
+        route_mode: "safe",
+        scenario_id: scenarioId,
+        include_alternatives: true,
+      });
       const activeRouteType = routeMode === "short" ? "short" : "safe";
       const previousRoute = routeResponse?.routes.find((route) => route.route_type === activeRouteType) ?? routeResponse?.routes[0] ?? null;
       setOldRoute(previousRoute);
