@@ -5,8 +5,10 @@ import loginMock from "../mocks/login.json";
 import mapGeoJsonMock from "../mocks/mapGeoJSON.json";
 import metaMock from "../mocks/meta.json";
 import poisMock from "../mocks/pois.json";
+import recomputeRiskMock from "../mocks/recomputeRiskResponse.json";
 import routeResponseMock from "../mocks/routeResponse.json";
 import scenariosMock from "../mocks/scenarios.json";
+import validationSummaryMock from "../mocks/validationSummary.json";
 import type {
   AreaMeta,
   BlockedReport,
@@ -15,11 +17,13 @@ import type {
   LoginResponse,
   MapGeoJson,
   Poi,
+  RecomputeRiskResponse,
   RoadProperties,
   RouteRequest,
   RouteResponse,
   RerouteRequest,
   Scenario,
+  ValidationSummary,
 } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
@@ -72,6 +76,18 @@ function scenarioAdjustedMap(scenarioId: number): MapGeoJson {
 
 export async function getHealth(): Promise<Health> {
   return useMocks ? copy(healthMock) : request<Health>("/api/health");
+}
+
+export async function getValidationSummary(): Promise<ValidationSummary> {
+  return useMocks ? copy(validationSummaryMock) as ValidationSummary : request<ValidationSummary>("/api/validation/summary");
+}
+
+export async function recomputeRisk(token: string): Promise<RecomputeRiskResponse> {
+  if (useMocks) return copy(recomputeRiskMock) as RecomputeRiskResponse;
+  return request<RecomputeRiskResponse>("/api/admin/recompute-risk", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getArea(): Promise<AreaMeta> {

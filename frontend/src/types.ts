@@ -16,7 +16,7 @@ export interface LoginResponse {
 export interface Health {
   status: string;
   model_loaded: boolean;
-  active_scenario_id: number;
+  active_scenario_id: number | null;
   road_count: number;
   poi_count: number;
 }
@@ -120,7 +120,7 @@ export interface Route {
 }
 
 export interface RouteWarning {
-  warning_type: "predicted_flood_before_arrival" | "blocked_ahead" | "high_risk_area";
+  warning_type: "predicted_flood_before_arrival" | "blocked_segment" | "blocked_ahead" | "high_risk_area";
   segment_id?: number;
   road_name: string;
   eta_to_segment_min?: number;
@@ -182,4 +182,28 @@ export interface RerouteRequest {
   destination: { poi_id: number } | LatLng;
   reason: "blocked_ahead" | "predicted_risk";
   route_mode: "safe" | "short";
+  scenario_id: number;
+  include_alternatives?: boolean;
+}
+
+export interface ValidationSegment {
+  segment_id: number;
+  name: string;
+  risk_score: number;
+  risk_level: RiskLevel;
+}
+
+export interface ValidationSummary {
+  model_loaded: boolean;
+  model_type: string;
+  segment_count: number;
+  risk_distribution: Record<RiskLevel, number>;
+  top_high_risk_segments: ValidationSegment[];
+  documented_flood_pockets: string[];
+}
+
+export interface RecomputeRiskResponse {
+  scenario_id: number;
+  segments_updated: number;
+  model_loaded?: boolean;
 }
