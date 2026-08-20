@@ -1,0 +1,34 @@
+{
+  "model_loaded": false,
+  "model_type": "Seeded local benchmark values",
+  "segment_count": 5,
+  "risk_distribution": {
+    "low": 2,
+    "moderate": 0,
+    "high": 2,
+    "critical": 1
+  },
+  "top_high_risk_segments": [
+    {
+      "segment_id": 2,
+      "name": "AGS Colony Road",
+      "risk_score": 0.82,
+      "risk_level": "critical"
+    },
+    {
+      "segment_id": 5,
+      "name": "Low-Lying Shortcut",
+      "risk_score": 0.68,
+      "risk_level": "high"
+    },
+    {
+      "segment_id": 3,
+      "name": "Baby Nagar Link",
+      "risk_score": 0.52,
+      "risk_level": "high"
+    }
+  ],
+  "documented_flood_pockets": [
+    "Seeded local benchmark data only; not official flood information."
+  ]
+}
