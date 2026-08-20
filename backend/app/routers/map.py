@@ -7,9 +7,6 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import BlockedReport, Poi, RoadSegment, Scenario
-from app.repositories.benchmark_repository import BenchmarkRepository
-from app.services.risk_service import RiskService
-from app.services.time_risk_service import TimeRiskService
 from app.utils.errors import APIError
 from app.utils.geo_math import normalize_linestring_coordinates, segment_midpoint
 
@@ -40,7 +37,7 @@ def map_geojson(
 
     features: list[dict] = []
     if "roads" in requested:
-        features.extend(_road_features(db, scenario))
+        features.extend(_road_features(db))
     if "pois" in requested:
         features.extend(_poi_features(db))
     if "reports" in requested:
@@ -48,50 +45,28 @@ def map_geojson(
     return {"type": "FeatureCollection", "features": features}
 
 
-def _road_features(db: Session, scenario: Scenario) -> list[dict]:
+def _road_features(db: Session) -> list[dict]:
     features = []
-    repository = BenchmarkRepository(db)
-    segments = repository.load_segments()
-    base_risks = RiskService().compute_all(segments, scenario)
-    risks = TimeRiskService().enrich_all(segments, scenario, base_risks)
-
-    for segment in sorted(segments, key=lambda item: item.id):
-        risk = risks[segment.id]
-        flood_status = _flood_status_for(segment.flood_status, segment.blocked, risk.risk_level)
+    for segment in db.query(RoadSegment).order_by(RoadSegment.id).all():
+        coordinates = normalize_linestring_coordinates(json.loads(segment.geometry_json))
         features.append(
             {
                 "type": "Feature",
-                "geometry": {"type": "LineString", "coordinates": segment.geometry},
+                "geometry": {"type": "LineString", "coordinates": coordinates},
                 "properties": {
                     "layer_type": "road",
                     "segment_id": segment.id,
                     "name": segment.name,
                     "road_type": segment.road_type,
-                    "current_risk_score": round(risk.risk_score, 2),
-                    "current_risk_level": risk.risk_level,
-                    "predicted_time_to_high_risk_min": (
-                        round(risk.predicted_time_to_high_risk_min, 1)
-                        if risk.predicted_time_to_high_risk_min is not None
-                        else None
-                    ),
+                    "current_risk_score": segment.current_risk_score,
+                    "current_risk_level": segment.current_risk_level,
+                    "predicted_time_to_high_risk_min": segment.predicted_time_to_high_risk_min,
                     "blocked": bool(segment.blocked),
-                    "flood_status": flood_status,
+                    "flood_status": segment.flood_status,
                 },
             }
         )
     return features
-
-
-def _flood_status_for(current_status: str, blocked: bool, risk_level: str) -> str:
-    if blocked:
-        return "confirmed_flooded"
-    if current_status == "confirmed_flooded":
-        return current_status
-    if risk_level in {"high", "critical"}:
-        return "likely_flooded"
-    if risk_level == "moderate":
-        return "possible_risk"
-    return "safe"
 
 
 def _poi_features(db: Session) -> list[dict]:
