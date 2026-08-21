@@ -174,3 +174,98 @@ class ActiveReportResponse(BaseModel):
     verification_status: str
     note: str | None
     created_at: str
+
+
+class ValidationSegment(BaseModel):
+    segment_id: int
+    name: str
+    risk_score: float
+    risk_level: str
+
+
+class ValidationSummaryResponse(BaseModel):
+    model_loaded: bool
+    model_type: str
+    segment_count: int
+    risk_distribution: dict[str, int]
+    top_high_risk_segments: list[ValidationSegment]
+    documented_flood_pockets: list[str]
+
+
+class RecomputeRiskResponse(BaseModel):
+    scenario_id: int
+    segments_updated: int
+    model_loaded: bool
+
+
+class RainfallUpdateRequest(BaseModel):
+    rainfall_mm_24h: float = Field(ge=0, le=500)
+    rainfall_mm_1h: float = Field(ge=0, le=200)
+    description: str | None = Field(default=None, max_length=300)
+
+
+class RainfallResponse(BaseModel):
+    scenario_id: int
+    scenario_name: str
+    rainfall_mm_24h: float
+    rainfall_mm_1h: float
+    source: str
+    updated_from: str
+
+
+class ShelterResponse(BaseModel):
+    poi_id: int
+    name: str
+    lat: float
+    lon: float
+    address: str | None
+    status: str
+    capacity_assumed: int
+    occupancy_assumed: int
+    available_capacity: int
+    accessible: bool
+    medical_support: bool
+    water_available: bool
+    source: str
+    notes: str | None
+
+
+class ShelterOccupancyUpdateRequest(BaseModel):
+    occupancy_assumed: int = Field(ge=0, le=100000)
+    status: str | None = Field(default=None, max_length=32)
+
+
+class ShelterCreateRequest(BaseModel):
+    name: str = Field(min_length=3, max_length=255)
+    lat: float = Field(ge=-90, le=90)
+    lon: float = Field(ge=-180, le=180)
+    address: str | None = Field(default=None, max_length=255)
+    capacity_assumed: int = Field(ge=1, le=100000)
+    occupancy_assumed: int = Field(default=0, ge=0, le=100000)
+    accessible: bool = False
+    medical_support: bool = False
+    water_available: bool = False
+
+
+class FieldMessageRequest(BaseModel):
+    sender_name: str = Field(default="Resident", min_length=1, max_length=96)
+    category: str = Field(default="other", max_length=64)
+    message: str = Field(min_length=3, max_length=1000)
+    segment_id: int | None = None
+
+
+class FieldMessageStatusRequest(BaseModel):
+    status: Literal["open", "in_review", "resolved"]
+
+
+class FieldMessageResponse(BaseModel):
+    id: int
+    sender_name: str
+    sender_role: str
+    category: str
+    message: str
+    segment_id: int | None
+    road_name: str | None
+    status: str
+    created_at: str
+    updated_at: str

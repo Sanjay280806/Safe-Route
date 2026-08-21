@@ -46,5 +46,17 @@
     "status": "open",
     "source": "placeholder",
     "notes": "Replace with real fuel station data"
+  },
+    {
+    "external_id": "POI-SHEL-002",
+    "name": "Government Pharmacies",
+    "category": "pharmacies",
+    "lat": 12.982,
+    "lon": 80.211,
+    "address": "Near Main Road",
+    "phone": "",
+    "status": "open",
+    "source": "placeholder",
+    "notes": "Replace with GCC relief centre data"
   }
 ]

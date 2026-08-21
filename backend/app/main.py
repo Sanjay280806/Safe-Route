@@ -9,9 +9,10 @@ from sqlalchemy import inspect
 
 from app.config import settings
 from app.database import Base, SessionLocal, engine
-from app.routers import auth, health, map, meta, pois, reports, scenarios
+from app.routers import admin, auth, health, map, messages, meta, pois, reports, scenarios, shelters, validation
 from app.routers.routes import router as routes_router
 from app.services.import_service import import_all
+from app.services.risk_recompute_service import recompute_risk
 from app.services.seed_service import seed_users
 from app.utils.errors import (
     APIError,
@@ -33,6 +34,7 @@ def bootstrap_database() -> None:
     try:
         seed_users(db)
         import_all(db)
+        recompute_risk(db)
     finally:
         db.close()
 
@@ -71,5 +73,9 @@ app.include_router(pois.router, prefix="/api")
 app.include_router(map.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
 app.include_router(routes_router, prefix="/api")
+app.include_router(validation.router, prefix="/api")
+app.include_router(admin.router, prefix="/api")
+app.include_router(shelters.router, prefix="/api")
+app.include_router(messages.router, prefix="/api")
 
 bootstrap_database()

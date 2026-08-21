@@ -129,6 +129,24 @@ class BlockedReport(Base):
     user: Mapped[User] = relationship()
 
 
+class FieldMessage(Base):
+    __tablename__ = "field_messages"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    sender_name: Mapped[str] = mapped_column(String(96), nullable=False, default="Resident")
+    sender_role: Mapped[str] = mapped_column(String(32), nullable=False, default="resident")
+    category: Mapped[str] = mapped_column(String(64), nullable=False, default="other")
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    segment_id: Mapped[int | None] = mapped_column(ForeignKey("road_segments.id"), nullable=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="open", index=True)
+    handled_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
+
+    segment: Mapped[RoadSegment | None] = relationship(foreign_keys=[segment_id])
+    handled_by: Mapped[User | None] = relationship(foreign_keys=[handled_by_user_id])
+
+
 class RouteRequest(Base):
     __tablename__ = "route_requests"
 

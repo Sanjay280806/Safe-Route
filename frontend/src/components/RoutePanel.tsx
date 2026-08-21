@@ -1,5 +1,5 @@
 import type { Bbox } from "../config/googleMaps";
-import type { Destination, LatLng, RouteMode, RouteResponse } from "../types";
+import type { Destination, LatLng, RouteResponse } from "../types";
 import { PlacesAutocompleteInput } from "./PlacesAutocompleteInput";
 
 interface RoutePanelProps {
@@ -7,7 +7,6 @@ interface RoutePanelProps {
   originLabel: string;
   destination: Destination | null;
   destinationLabel: string;
-  routeMode: RouteMode;
   routeResponse: RouteResponse | null;
   loading: boolean;
   mapMode: "pan" | "set_origin" | "set_destination" | "report_road";
@@ -16,7 +15,6 @@ interface RoutePanelProps {
   onDestinationLabelChange: (value: string) => void;
   onOriginSelect: (point: LatLng, label: string) => void;
   onDestinationSelect: (destination: Destination, label: string) => void;
-  onRouteModeChange: (mode: RouteMode) => void;
   onMapModeChange: (mode: "set_origin" | "set_destination") => void;
   onRequestRoute: () => void;
   onClear: () => void;
@@ -37,7 +35,6 @@ export function RoutePanel({
   originLabel,
   destination,
   destinationLabel,
-  routeMode,
   routeResponse,
   loading,
   mapMode,
@@ -46,13 +43,12 @@ export function RoutePanel({
   onDestinationLabelChange,
   onOriginSelect,
   onDestinationSelect,
-  onRouteModeChange,
   onMapModeChange,
   onRequestRoute,
   onClear,
   onPlacesError,
 }: RoutePanelProps) {
-  const visibleRoutes = routeResponse?.routes.filter((route) => routeMode === "compare" || route.route_type === routeMode) ?? [];
+  const visibleRoutes = routeResponse?.routes.filter((route) => route.route_type === "safe").slice(0, 1) ?? [];
   const originDisplay = originLabel || pointLabel(origin, "Set an origin");
   const destinationDisplay = destinationLabel || destinationFallbackLabel(destination);
 
@@ -108,20 +104,6 @@ export function RoutePanel({
         <p className="map-mode-hint">Click the map to set your {mapMode === "set_origin" ? "origin" : "destination"}.</p>
       ) : null}
 
-      <fieldset className="route-mode-selector">
-        <legend>Route preference</legend>
-        {(["safe", "short", "compare"] as RouteMode[]).map((mode) => (
-          <button
-            type="button"
-            key={mode}
-            className={routeMode === mode ? "active" : ""}
-            onClick={() => onRouteModeChange(mode)}
-          >
-            {mode === "safe" ? "Safest" : mode === "short" ? "Shortest" : "Compare"}
-          </button>
-        ))}
-      </fieldset>
-
       <div className="route-actions">
         <button type="button" className="primary-button" disabled={!origin || !destination || loading} onClick={onRequestRoute}>
           {loading ? "Finding route…" : "Get route"}
@@ -135,7 +117,7 @@ export function RoutePanel({
             <article className={`route-summary ${route.route_type}`} key={route.route_type}>
               <span className="route-line-swatch" />
               <div>
-                <strong>{route.route_type === "safe" ? "Safe route" : "Short route"}</strong>
+                <strong>Optimal flood-aware route</strong>
                 <p>{(route.distance_m / 1000).toFixed(2)} km · {route.duration_min.toFixed(1)} min</p>
               </div>
               <span className={`risk-score ${route.avg_risk_score >= 0.5 ? "high" : "low"}`}>{Math.round(route.avg_risk_score * 100)}% risk</span>

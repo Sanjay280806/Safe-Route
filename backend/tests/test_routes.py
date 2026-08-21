@@ -17,7 +17,7 @@ def test_create_route_uses_frozen_response_shape(client):
     body = response.json()
     assert set(body) == {"request_id", "destination", "routes", "warnings", "explanation"}
     assert body["destination"]["type"] == "poi"
-    assert {route["route_type"] for route in body["routes"]} == {"safe", "short"}
+    assert {route["route_type"] for route in body["routes"]} == {"safe"}
     assert set(body["routes"][0]) == {
         "route_type",
         "distance_m",

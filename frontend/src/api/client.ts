@@ -13,16 +13,19 @@ import type {
   AreaMeta,
   BlockedReport,
   BlockedReportResponse,
+  FieldMessage,
   Health,
   LoginResponse,
   MapGeoJson,
   Poi,
+  RainfallStatus,
   RecomputeRiskResponse,
   RoadProperties,
   RouteRequest,
   RouteResponse,
   RerouteRequest,
   Scenario,
+  Shelter,
   ValidationSummary,
 } from "../types";
 
@@ -44,7 +47,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     const body = await response.json().catch(() => null);
-    throw new Error(body?.error?.message ?? `Request failed (${response.status}).`);
+    throw new Error(body?.error?.message ?? body?.detail?.message ?? body?.detail ?? `Request failed (${response.status}).`);
   }
 
   return response.json() as Promise<T>;
@@ -90,6 +93,135 @@ export async function recomputeRisk(token: string): Promise<RecomputeRiskRespons
   });
 }
 
+export async function getRainfall(): Promise<RainfallStatus> {
+  if (useMocks) {
+    const scenario = (scenariosMock as unknown as Scenario[]).find((item) => item.is_active) ?? (scenariosMock as unknown as Scenario[])[0];
+    return {
+      scenario_id: scenario.id,
+      scenario_name: scenario.name,
+      rainfall_mm_24h: scenario.rainfall_mm_24h,
+      rainfall_mm_1h: scenario.rainfall_mm_1h,
+      source: scenario.source ?? "seeded local scenario",
+      updated_from: "mock local scenario",
+    };
+  }
+  return request<RainfallStatus>("/api/rainfall/current");
+}
+
+export async function updateRainfall(
+  payload: { rainfall_mm_24h: number; rainfall_mm_1h: number; description?: string },
+  token: string,
+): Promise<RainfallStatus> {
+  if (useMocks) return getRainfall();
+  return request<RainfallStatus>("/api/admin/rainfall", {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getShelters(): Promise<Shelter[]> {
+  if (useMocks) {
+    return (poisMock as unknown as Poi[])
+      .filter((poi) => poi.category === "shelter")
+      .map((poi) => ({
+        poi_id: poi.id,
+        name: poi.name,
+        lat: poi.lat,
+        lon: poi.lon,
+        address: poi.address,
+        status: poi.status,
+        capacity_assumed: 100,
+        occupancy_assumed: 0,
+        available_capacity: 100,
+        accessible: false,
+        medical_support: false,
+        water_available: false,
+        source: poi.source ?? "placeholder",
+        notes: poi.notes,
+      }));
+  }
+  return request<Shelter[]>("/api/shelters");
+}
+
+export async function updateShelterOccupancy(
+  shelterId: number,
+  payload: { occupancy_assumed: number; status?: string },
+  token: string,
+): Promise<Shelter> {
+  if (useMocks) throw new Error("Shelter occupancy updates require the local API.");
+  return request<Shelter>(`/api/shelters/${shelterId}/occupancy`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function createShelter(
+  payload: {
+    name: string;
+    lat: number;
+    lon: number;
+    address?: string;
+    capacity_assumed: number;
+    occupancy_assumed: number;
+    accessible: boolean;
+    medical_support: boolean;
+    water_available: boolean;
+  },
+  token: string,
+): Promise<Shelter> {
+  if (useMocks) throw new Error("Adding shelters requires the local API.");
+  return request<Shelter>("/api/shelters", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getMessages(token: string): Promise<FieldMessage[]> {
+  if (useMocks) return [];
+  return request<FieldMessage[]>("/api/messages", { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function sendMessage(
+  payload: { sender_name: string; category: string; message: string; segment_id?: number },
+  token?: string | null,
+): Promise<FieldMessage> {
+  if (useMocks) {
+    return {
+      id: Date.now(),
+      sender_name: payload.sender_name,
+      sender_role: token ? "reporter" : "resident",
+      category: payload.category,
+      message: payload.message,
+      segment_id: payload.segment_id ?? null,
+      road_name: null,
+      status: "open",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+  }
+  return request<FieldMessage>("/api/messages", {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateMessageStatus(
+  messageId: number,
+  status: FieldMessage["status"],
+  token: string,
+): Promise<FieldMessage> {
+  if (useMocks) throw new Error("Message management requires the local API.");
+  return request<FieldMessage>(`/api/messages/${messageId}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ status }),
+  });
+}
+
 export async function getArea(): Promise<AreaMeta> {
   return useMocks ? copy(metaMock) as AreaMeta : request<AreaMeta>("/api/meta/area");
 }
@@ -114,6 +246,24 @@ export async function getActiveReports(): Promise<BlockedReport[]> {
 
 function mockRouteForDestination(payload: RouteRequest | RerouteRequest): RouteResponse {
   const route = copy(routeResponseMock) as RouteResponse;
+  const recommendedRoute = route.routes.find((candidate) => candidate.route_type === "safe");
+  const shortestBaseline = route.routes.find((candidate) => candidate.route_type === "short");
+  route.routes = recommendedRoute ? [recommendedRoute] : [];
+  route.warnings = recommendedRoute?.predicted_risk_warnings_count
+    ? route.warnings.slice(0, recommendedRoute.predicted_risk_warnings_count)
+    : [];
+  if (recommendedRoute && shortestBaseline) {
+    const highRiskAvoided = Math.max(0, shortestBaseline.high_risk_segments_count - recommendedRoute.high_risk_segments_count);
+    const blockedAvoided = Math.max(0, shortestBaseline.blocked_segments_encountered - recommendedRoute.blocked_segments_encountered);
+    route.explanation = {
+      safe_route_adds_min: Math.max(0, Number((recommendedRoute.duration_min - shortestBaseline.duration_min).toFixed(1))),
+      high_risk_segments_avoided: highRiskAvoided,
+      blocked_segments_avoided: blockedAvoided,
+      summary: highRiskAvoided || blockedAvoided
+        ? "The optimal route avoids higher-risk or blocked road segments while keeping travel time practical."
+        : "The optimal route has the lowest flood exposure for the selected destination.",
+    };
+  }
   const destination = payload.destination;
   let destinationPoint: [number, number] | null = null;
   if ("poi_id" in destination) {

@@ -10,6 +10,10 @@ const categories: Array<{ value: PoiCategory; label: string; icon: string }> = [
   { value: "school", label: "Schools", icon: "▣" },
 ];
 
+const headerCategories = categories.filter(
+  (category) => !["pharmacy", "fire_station", "school"].includes(category.value),
+);
+
 interface CategoryChipsProps {
   selected: PoiCategory | null;
   onSelect: (category: PoiCategory | null) => void;
@@ -18,7 +22,7 @@ interface CategoryChipsProps {
 export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
   return (
     <div className="category-chips" aria-label="Filter place categories">
-      {categories.map((category) => (
+      {headerCategories.map((category) => (
         <button
           className={`category-chip ${selected === category.value ? "selected" : ""}`}
           key={category.value}

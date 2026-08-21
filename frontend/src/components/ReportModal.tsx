@@ -4,11 +4,12 @@ import type { RoadFeature } from "../types";
 interface ReportModalProps {
   road: RoadFeature | null;
   submitting: boolean;
+  source?: string;
   onClose: () => void;
   onSubmit: (payload: { source: string; note: string; flood_status: string }) => void;
 }
 
-export function ReportModal({ road, submitting, onClose, onSubmit }: ReportModalProps) {
+export function ReportModal({ road, submitting, source = "field_official", onClose, onSubmit }: ReportModalProps) {
   const [floodStatus, setFloodStatus] = useState("confirmed_flooded");
   const [note, setNote] = useState("");
 
@@ -16,7 +17,7 @@ export function ReportModal({ road, submitting, onClose, onSubmit }: ReportModal
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSubmit({ source: "field_official", note: note.trim() || "Field observation submitted from dashboard", flood_status: floodStatus });
+    onSubmit({ source, note: note.trim() || "Field observation submitted from dashboard", flood_status: floodStatus });
   };
 
   return (

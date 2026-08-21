@@ -1,14 +1,26 @@
-import type { RouteWarning } from "../types";
+import type { Route, RouteWarning } from "../types";
 
-export function WarningsPanel({ warnings }: { warnings: RouteWarning[] }) {
+interface WarningsPanelProps {
+  route: Route | null;
+  warnings: RouteWarning[];
+  loading?: boolean;
+}
+
+export function WarningsPanel({ route, warnings, loading = false }: WarningsPanelProps) {
+  const hasRoute = Boolean(route);
+  const warningCount = hasRoute ? warnings.length : 0;
+
   return (
     <section className="panel warnings-panel">
       <div className="panel-heading">
         <div><p className="eyebrow">AI time-to-risk</p><h2>Route warnings</h2></div>
-        <span className={`warning-count ${warnings.length ? "has-warnings" : ""}`}>{warnings.length}</span>
+        <span className={`warning-count ${warningCount ? "has-warnings" : ""}`}>{hasRoute ? warningCount : "–"}</span>
       </div>
-      {warnings.length === 0 ? <p className="safe-message">No time-to-risk warnings on the selected route.</p> : null}
-      {warnings.map((warning, index) => (
+      {!hasRoute && !loading ? <p className="panel-empty">Select a destination and get a route to assess time-to-risk.</p> : null}
+      {loading ? <p className="panel-empty">Assessing time-to-risk on the selected route…</p> : null}
+      {route && !loading ? <p className="route-analysis-detail">{(route.distance_m / 1000).toFixed(2)} km · {route.duration_min.toFixed(1)} min · {Math.round(route.avg_risk_score * 100)}% average flood risk</p> : null}
+      {hasRoute && warnings.length === 0 && !loading ? <p className="safe-message">No time-to-risk warnings on this optimal route.</p> : null}
+      {hasRoute && warnings.map((warning, index) => (
         <article className="warning-card" key={`${warning.segment_id ?? index}-${warning.road_name}`}>
           <span className="warning-symbol" aria-hidden="true">!</span>
           <div>

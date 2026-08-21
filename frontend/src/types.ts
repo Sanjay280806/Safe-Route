@@ -207,3 +207,42 @@ export interface RecomputeRiskResponse {
   segments_updated: number;
   model_loaded?: boolean;
 }
+
+export interface RainfallStatus {
+  scenario_id: number;
+  scenario_name: string;
+  rainfall_mm_24h: number;
+  rainfall_mm_1h: number;
+  source: string;
+  updated_from: string;
+}
+
+export interface Shelter {
+  poi_id: number;
+  name: string;
+  lat: number;
+  lon: number;
+  address?: string | null;
+  status: "open" | "closed" | "unknown";
+  capacity_assumed: number;
+  occupancy_assumed: number;
+  available_capacity: number;
+  accessible: boolean;
+  medical_support: boolean;
+  water_available: boolean;
+  source: string;
+  notes?: string | null;
+}
+
+export interface FieldMessage {
+  id: number;
+  sender_name: string;
+  sender_role: string;
+  category: string;
+  message: string;
+  segment_id: number | null;
+  road_name: string | null;
+  status: "open" | "in_review" | "resolved";
+  created_at: string;
+  updated_at: string;
+}

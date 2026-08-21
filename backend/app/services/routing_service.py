@@ -94,7 +94,16 @@ class RoutingService:
             )
 
         safe = computed.get("safe")
-        short = computed.get("short")
+        # A shortest-path baseline is calculated only to explain why the one
+        # recommendation is safer. It is intentionally not returned to the UI.
+        short = self._dijkstra(
+            graph=graph,
+            start_node_id=origin_node_id,
+            end_node_id=destination_node_id,
+            segments=segment_lookup,
+            risks=risks,
+            mode="short",
+        ) if safe is not None else None
         return {
             "request_id": self.repository.create_route_request(),
             "destination": destination_payload,
@@ -131,9 +140,10 @@ class RoutingService:
         }
 
     def _wanted_modes(self, route_mode: str, include_alternatives: bool) -> list[str]:
-        if route_mode == "compare" or include_alternatives:
-            return ["safe", "short"]
-        return [route_mode]
+        # The dashboard presents one flood-aware recommendation.  Keep accepting
+        # legacy request parameters so existing clients remain compatible, but
+        # never return a less-safe alternative as a competing recommendation.
+        return ["safe"]
 
     def _dijkstra(
         self,
